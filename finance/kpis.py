@@ -66,6 +66,14 @@ def _ttm_from_quarterlies(df: pd.DataFrame, cols: List[str]) -> Dict[str, float]
     return out
 
 
+def _close_col(prices: pd.DataFrame) -> Optional[str]:
+    """Return the column name for close prices, adjusted if available."""
+    for col in ("Adj Close", "Close"):
+        if col in prices.columns:
+            return col
+    return None
+
+
 def _dividend_yield_ttm(prices: pd.DataFrame) -> Optional[float]:
     """Compute trailing 12 month dividend yield from ``prices`` if possible."""
     if "Dividends" not in prices.columns:
@@ -73,17 +81,23 @@ def _dividend_yield_ttm(prices: pd.DataFrame) -> Optional[float]:
     last = prices.index[-1]
     start = last - pd.Timedelta(days=365)
     divs = prices["Dividends"][prices.index >= start].sum()
-    close = prices["Adj Close"].iloc[-1]
+    col = _close_col(prices)
+    if col is None:
+        return None
+    close = prices[col].iloc[-1]
     if close and close != 0:
         return float(divs) / float(close)
     return None
 
 
 def _total_return(prices: pd.DataFrame, years: int) -> Optional[float]:
-    """Simple total return for ``years`` using adjusted close and dividends."""
+    """Simple total return for ``years`` using close prices and dividends."""
     if prices.empty:
         return None
-    adj = prices["Adj Close"].dropna().sort_index()
+    col = _close_col(prices)
+    if col is None:
+        return None
+    adj = prices[col].dropna().sort_index()
     end_date = adj.index[-1]
     start_date = end_date - pd.DateOffset(years=years)
     adj_since = adj[adj.index >= start_date]
