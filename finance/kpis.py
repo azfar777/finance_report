@@ -85,9 +85,7 @@ def _dividend_yield_ttm(prices: pd.DataFrame) -> Optional[float]:
     if col is None:
         return None
     close = prices[col].iloc[-1]
-    if close and close != 0:
-        return float(divs) / float(close)
-    return None
+    return float(divs) / float(close)
 
 
 def _total_return(prices: pd.DataFrame, years: int) -> Optional[float]:
