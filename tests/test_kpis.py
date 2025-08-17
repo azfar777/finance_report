@@ -55,3 +55,10 @@ def test_total_return_close_only() -> None:
     prices = pd.DataFrame({"Close": [100, 110], "Dividends": [0.0, 5.0]}, index=idx)
     tr = _total_return(prices, years=1)
     assert tr == pytest.approx(0.15)
+
+
+def test_total_return_duplicate_columns() -> None:
+    idx = pd.to_datetime(["2022-01-01", "2023-01-01"])
+    prices = pd.DataFrame([[100, 100, 0.0], [110, 110, 0.0]], index=idx, columns=["Close", "Close", "Dividends"])
+    tr = _total_return(prices, years=1)
+    assert tr == pytest.approx(0.10, abs=1e-9)
