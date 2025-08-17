@@ -5,3 +5,5 @@ numpy
 pypdf
 tqdm
 python-dotenv
+pandas
+yfinance
