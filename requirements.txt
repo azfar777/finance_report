@@ -1,0 +1,7 @@
+faiss-cpu
+sentence-transformers
+torch
+numpy
+pypdf
+tqdm
+python-dotenv
