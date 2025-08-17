@@ -1,0 +1,7 @@
+# Ignore generated data and storage contents
+/data/*
+!/data/.gitkeep
+/storage/*
+!/storage/.gitkeep
+.env
+__pycache__/
