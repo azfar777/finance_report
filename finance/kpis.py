@@ -84,9 +84,15 @@ def _dividend_yield_ttm(prices: pd.DataFrame) -> Optional[float]:
     col = _close_col(prices)
     if col is None:
         return None
-    close = prices[col].iloc[-1]
-    if close and close != 0:
-        return float(divs) / float(close)
+    close = prices[col]
+    if isinstance(close, pd.DataFrame):  # handle duplicate column names
+        close = close.iloc[:, 0]
+    close = close.dropna()
+    if close.empty:
+        return None
+    close_val = float(close.iloc[-1])
+    if close_val != 0:
+        return float(divs) / close_val
     return None
 
 
@@ -97,20 +103,23 @@ def _total_return(prices: pd.DataFrame, years: int) -> Optional[float]:
     col = _close_col(prices)
     if col is None:
         return None
-    adj = prices[col].dropna().sort_index()
+    adj = prices[col]
+    if isinstance(adj, pd.DataFrame):  # handle duplicate column names
+        adj = adj.iloc[:, 0]
+    adj = adj.dropna().sort_index()
     end_date = adj.index[-1]
     start_date = end_date - pd.DateOffset(years=years)
     adj_since = adj[adj.index >= start_date]
     if adj_since.empty:
         return None
-    start_price = adj_since.iloc[0]
-    end_price = adj.iloc[-1]
+    start_price = float(adj_since.iloc[0])
+    end_price = float(adj.iloc[-1])
     if start_price == 0:
         return None
     divs = 0.0
     if "Dividends" in prices.columns:
         divs = prices["Dividends"][prices.index >= adj_since.index[0]].sum()
-    return float(end_price + divs) / float(start_price) - 1
+    return (end_price + divs) / start_price - 1
 
 
 # ---------------------------------------------------------------------------
