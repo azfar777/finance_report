@@ -5,11 +5,12 @@ import os
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, CrossEncoder
 
 load_dotenv()
 
 DEFAULT_MODEL = "BAAI/bge-m3"
+_reranker = None
 
 
 @lru_cache(maxsize=1)
@@ -26,3 +27,17 @@ def get_embedding_model() -> SentenceTransformer:
     """
     name = os.getenv("EMB_NAME", DEFAULT_MODEL)
     return _load_model(name)
+
+
+def get_reranker() -> CrossEncoder:
+    """Lazy-load a cross-encoder reranker.
+
+    Default model is ``BAAI/bge-reranker-large`` which is quite heavy. Set the
+    ``RERANKER_NAME`` environment variable to override, e.g. use
+    ``BAAI/bge-reranker-base`` for a smaller model.
+    """
+    global _reranker
+    if _reranker is None:
+        name = os.getenv("RERANKER_NAME", "BAAI/bge-reranker-large")
+        _reranker = CrossEncoder(name)
+    return _reranker

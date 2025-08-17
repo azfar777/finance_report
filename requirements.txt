@@ -7,3 +7,4 @@ tqdm
 python-dotenv
 pandas
 yfinance
+rank-bm25
