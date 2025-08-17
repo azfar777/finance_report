@@ -1,7 +1,42 @@
-# Ignore generated data and storage contents
-/data/*
-!/data/.gitkeep
-/storage/*
-!/storage/.gitkeep
-.env
+# make sure you’re on your branch
+git checkout Azfar/branch
+
+# create/update .gitignore
+cat > .gitignore <<'EOF'
+# Python
 __pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual envs & IDE
+.venv/
+.env
+.vscode/
+.idea/
+.DS_Store
+
+# Data & caches (don’t commit generated artifacts)
+data/
+storage/
+*.parquet
+*.zip
+*pdf
+*.csv
+*.json
+*.log
+
+# Model/cache dirs
+.cache/
+huggingface/
+models/
+EOF
+
+# stage the ignore file
+git add .gitignore
+
+# stop tracking already-committed junk (keeps files locally)
+git rm -r --cached .venv storage data .DS_Store 2>/dev/null || true
+
+# commit the cleanup
+git commit -m "gitignore + stop tracking venv/data/storage and OS junk"
+
