@@ -8,3 +8,10 @@ python-dotenv
 pandas
 yfinance
 rank-bm25
+
+transformers
+accelerate
+safetensors
+fastapi
+uvicorn[standard]
+python-multipart

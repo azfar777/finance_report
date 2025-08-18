@@ -41,3 +41,18 @@ def get_reranker() -> CrossEncoder:
         name = os.getenv("RERANKER_NAME", "BAAI/bge-reranker-large")
         _reranker = CrossEncoder(name)
     return _reranker
+from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+
+_gen_pipe = None
+def get_generator():
+    """
+    Return a local HF text-generation pipeline (default: Qwen2.5-3B-Instruct).
+    Override via HF_MODEL env. Intended for short analytical summaries (300–500 tokens).
+    """
+    global _gen_pipe
+    if _gen_pipe is None:
+        name = os.getenv("HF_MODEL", "Qwen/Qwen2.5-3B-Instruct")
+        tok = AutoTokenizer.from_pretrained(name)
+        model = AutoModelForCausalLM.from_pretrained(name, device_map="auto")
+        _gen_pipe = pipeline("text-generation", model=model, tokenizer=tok)
+    return _gen_pipe
